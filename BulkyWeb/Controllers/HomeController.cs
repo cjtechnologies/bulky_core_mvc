@@ -14,7 +14,7 @@ namespace BulkyWeb.Controllers
         }
 
         public IActionResult Index()
-        {
+        { 
             return View();
         }
 
