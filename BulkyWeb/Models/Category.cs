@@ -14,6 +14,6 @@ namespace BulkyWeb.Models
         [DisplayName("Display Order")]
         [Required(ErrorMessage = "Display Order is required")]
         [Range(1,100, ErrorMessage ="Display Order must be between 1-100")]
-        public int? DisplayOrder { get; set; }
+        public int DisplayOrder { get; set; }
     }
 }
