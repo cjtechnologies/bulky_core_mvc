@@ -1,7 +1,10 @@
+Resources:
 
 https://www.dotnetmastery.com/Home/Details?courseId=9
 
 https://github.com/bhrugen/Bulky_MVC/
+
+https://bootswatch.com/
 
 Package Manager Console
 -----------------------
@@ -11,5 +14,5 @@ update-database
 add-migration SeedCategoryTable
 update-database
 
-02. Category CRUD Operations
-14. Bootswatch Theme and Bootstrap Icons
+04. N-Tier Architecture
+7. Bonus - Dependency Injection Service Lifetimes
