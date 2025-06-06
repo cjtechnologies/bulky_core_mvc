@@ -14,5 +14,5 @@ update-database
 add-migration SeedCategoryTable
 update-database
 
-04. N-Tier Architecture
-7. Bonus - Dependency Injection Service Lifetimes
+05. Repository Pattern
+9. UnitOfWork in Action
