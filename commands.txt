@@ -14,5 +14,5 @@ update-database
 add-migration SeedCategoryTable
 update-database
 
-05. Repository Pattern
-9. UnitOfWork in Action
+06. Product CRUD
+15. Rich Text Editor

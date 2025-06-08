@@ -15,8 +15,8 @@ namespace BulkyWeb.Areas.Admin.Controllers
         }
         public IActionResult Index()
         {
-            List<Category> categoryList = _unitOfWork.CatRepo.GetAll().ToList();
-            return View(categoryList);
+            List<Category> list = _unitOfWork.CatRepo.GetAll().ToList();
+            return View(list);
         }
 
         public IActionResult Create()
@@ -48,12 +48,12 @@ namespace BulkyWeb.Areas.Admin.Controllers
             }
             //Category? cat2 = _db.Categories.Where(u => u.Id == id).FirstOrDefault();
             //Category? cat1 = _db.Categories.FirstOrDefault(u=>u.Id==id);
-            Category? cat = _unitOfWork.CatRepo.Get(u => u.Id==id);
-            if (cat == null)
+            Category? obj = _unitOfWork.CatRepo.Get(u => u.Id==id);
+            if (obj == null)
             {
                 return NotFound();
             }
-            return View(cat);
+            return View(obj);
         }
         [HttpPost]
         public IActionResult Edit(Category obj)
@@ -75,12 +75,12 @@ namespace BulkyWeb.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-            Category? cat = _unitOfWork.CatRepo.Get(u => u.Id == id);
-            if (cat == null)
+            Category? obj = _unitOfWork.CatRepo.Get(u => u.Id == id);
+            if (obj == null)
             {
                 return NotFound();
             }
-            return View(cat);
+            return View(obj);
         }
         [HttpPost, ActionName("Delete")]
         public IActionResult DeletePost(int? id)
@@ -89,12 +89,12 @@ namespace BulkyWeb.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-            Category? cat = _unitOfWork.CatRepo.Get(u => u.Id == id);
-            if (cat == null)
+            Category? obj = _unitOfWork.CatRepo.Get(u => u.Id == id);
+            if (obj == null)
             {
                 return NotFound();
             }
-            _unitOfWork.CatRepo.Remove(cat);
+            _unitOfWork.CatRepo.Remove(obj);
             _unitOfWork.Save();
             TempData["success"] = "Category deleted successfully";
             return RedirectToAction("Index");
