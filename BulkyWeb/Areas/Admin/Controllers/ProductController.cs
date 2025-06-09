@@ -78,7 +78,7 @@ namespace BulkyWeb.Areas.Admin.Controllers
                     {
                         file.CopyTo(filestream);
                     }
-                    obj.Product.ImageUrl = @"/images/product/" + file.FileName;
+                    obj.Product.ImageUrl = @"\images\product\" + file.FileName;
                 }
                 if (obj.Product.Id == 0)
                 {
@@ -103,37 +103,40 @@ namespace BulkyWeb.Areas.Admin.Controllers
                 return View(obj);            
             }
         }
-              
+ 
+        #region Api Calls
+        [HttpGet]
+        public IActionResult GetAll()
+        {
+            List<Product> list = _unitOfWork.PdtRepo.GetAll(includeProperties: "Category").ToList();
+            return Json(new { data = list });
+        }
+        [HttpPost]
         public IActionResult Delete(int? id)
         {
             if (id == null || id == 0)
             {
-                return NotFound();
+                return Json(new { success = false, message = "Missing id" });
             }
             Product? obj = _unitOfWork.PdtRepo.Get(u => u.Id == id);
             if (obj == null)
             {
-                return NotFound();
+                return Json(new {success=false,message= "Error while deleting" });
             }
-            return View(obj);
-        }
-        [HttpPost, ActionName("Delete")]
-        public IActionResult DeletePost(int? id)
-        {
-            if (id == null || id == 0)
+            if (obj.ImageUrl != null)
             {
-                return NotFound();
-            }
-            Product? obj = _unitOfWork.PdtRepo.Get(u => u.Id == id);
-            if (obj == null)
-            {
-                return NotFound();
+                var oldImagePath = Path.Combine(_webHostEnvironment.WebRootPath, obj!.ImageUrl!.TrimStart('\\'));
+                Console.WriteLine("oldImagePath: {0}", oldImagePath);
+                if (System.IO.File.Exists(oldImagePath))
+                {
+                    System.IO.File.Delete(oldImagePath);
+                }
             }
             _unitOfWork.PdtRepo.Remove(obj);
             _unitOfWork.Save();
-            TempData["success"] = "Product deleted successfully";
-            return RedirectToAction("Index");
-            
+            return Json(new { success = true, message = "Your record has been deleted." });
         }
+
+        #endregion
     }
 }
