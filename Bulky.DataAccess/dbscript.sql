@@ -178,4 +178,15 @@ ADD
     [CompanyId] INT NULL,
     CONSTRAINT [FK_AspNetUsers_CompanyId] FOREIGN KEY ([CompanyId]) REFERENCES [Companies]([Id]) ON DELETE SET NULL;
 --##
-// 11. Authorization in Project
+CREATE TABLE ShoppingCarts (
+    Id INT NOT NULL IDENTITY(1, 1),
+    ProductId INT NOT NULL,
+    Count INT NOT NULL,
+    ApplicationUserId NVARCHAR(450) NOT NULL,    
+    CONSTRAINT Pk_ShoppingCarts_Id PRIMARY KEY (Id),
+    CONSTRAINT [FK_ShoppingCarts_ProductId] FOREIGN KEY ([ProductId]) REFERENCES [Products]([Id]) ON DELETE CASCADE,
+    CONSTRAINT [FK_ShoppingCarts_ApplicationUserId] FOREIGN KEY ([ApplicationUserId]) REFERENCES [AspNetUsers]([Id]) ON DELETE CASCADE
+);
+--##
+--10. Shopping Cart
+----8. Shopping Cart UI
