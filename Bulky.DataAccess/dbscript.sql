@@ -75,7 +75,7 @@ CREATE TABLE [AspNetUsers] (
 --##
 ALTER TABLE [AspNetUsers]
 ADD 
-    [Name] INT NULL,
+    [Name] NVARCHAR(MAX) NULL,
     [StreetAddress] NVARCHAR(MAX) NULL,
     [City] NVARCHAR(MAX) NULL,
     [State] NVARCHAR(MAX) NULL,
@@ -156,6 +156,26 @@ CREATE UNIQUE INDEX [UserNameIndex]
 ON [AspNetUsers] ([NormalizedUserName])
 WHERE [NormalizedUserName] IS NOT NULL;
 --##
-
-
+--## ============== COMPANY ===============
+CREATE TABLE Companies (
+    Id INT NOT NULL IDENTITY(1, 1),
+    [Name] NVARCHAR(MAX) NOT NULL,
+    [StreetAddress] NVARCHAR(MAX) NULL,
+    [City] NVARCHAR(MAX) NULL,
+    [State] NVARCHAR(MAX) NULL,
+    [PostalCode] NVARCHAR(MAX) NULL,
+    [PhoneNumber] NVARCHAR(MAX) NULL,    
+    CONSTRAINT Pk_Companies_Id PRIMARY KEY (Id)
+);
+--##
+INSERT INTO bulky.dbo.Companies (Name, StreetAddress, City, State, PostalCode, PhoneNumber) VALUES 
+(N'Tech Solution', '123, Tech Street', 'Tech City', 'IL', '121212','654321987'),
+(N'Vivid Books', '456, Vivid Street', 'Vivid City', 'TN', '321321','789546123'),
+(N'Readers Club', '321, Club Street', 'Club City', 'NY', '652562','693258741');
+--##
+ALTER TABLE [AspNetUsers]
+ADD 
+    [CompanyId] INT NULL,
+    CONSTRAINT [FK_AspNetUsers_CompanyId] FOREIGN KEY ([CompanyId]) REFERENCES [Companies]([Id]) ON DELETE SET NULL;
+--##
 // 11. Authorization in Project
