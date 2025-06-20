@@ -26,18 +26,41 @@ namespace BulkyWeb.Areas.Customer.Controllers
             CartVM = new()
             {
                 ShoppingCartList = _unitOfWork.CartRepo.GetAll(u => u.ApplicationUserId == userId, includeProperties: "Product"),
+                OrderHeader = new()
             };
             foreach(var cart in CartVM.ShoppingCartList)
             {
                 cart.Price = GetPriceBasedOnQuantity(cart); 
-                CartVM.OrderTotal += (cart.Price * cart.Count);
+                CartVM.OrderHeader.OrderTotal += (cart.Price * cart.Count);
             }
             return View(CartVM);
         }
 
         public IActionResult Summary()
         {
-            return View();
+            var claimsIdentity = (ClaimsIdentity)User.Identity!;
+            var userId = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var appUser = _unitOfWork.UserRepo.Get(u => u.Id == userId);
+
+            CartVM = new()
+            {
+                ShoppingCartList = _unitOfWork.CartRepo.GetAll(u => u.ApplicationUserId == userId, includeProperties: "Product"),
+                OrderHeader = new()
+            };
+            CartVM.OrderHeader.ApplicationUser = appUser;
+            CartVM.OrderHeader.Name = appUser.Name;
+            CartVM.OrderHeader.PhoneNumber = appUser.PhoneNumber;
+            CartVM.OrderHeader.StreetAddress = appUser.StreetAddress;
+            CartVM.OrderHeader.City = appUser.City;
+            CartVM.OrderHeader.State = appUser.State;
+            CartVM.OrderHeader.PostalCode = appUser.PostalCode;
+
+            foreach (var cart in CartVM.ShoppingCartList)
+            {
+                cart.Price = GetPriceBasedOnQuantity(cart);
+                CartVM.OrderHeader.OrderTotal += (cart.Price * cart.Count);
+            }
+            return View(CartVM);
         }
 
         public IActionResult Plus(int cartId)

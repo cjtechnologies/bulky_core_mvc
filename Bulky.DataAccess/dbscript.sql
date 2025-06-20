@@ -188,5 +188,43 @@ CREATE TABLE ShoppingCarts (
     CONSTRAINT [FK_ShoppingCarts_ApplicationUserId] FOREIGN KEY ([ApplicationUserId]) REFERENCES [AspNetUsers]([Id]) ON DELETE CASCADE
 );
 --##
---10. Shopping Cart
-----8. Shopping Cart UI
+CREATE TABLE [OrderHeaders] (
+    [Id] INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    [ApplicationUserId] NVARCHAR(450) NOT NULL,
+    [Carrier] NVARCHAR(MAX) NULL,
+    [City] NVARCHAR(MAX) NOT NULL,
+    [Name] NVARCHAR(MAX) NOT NULL,
+    [OrderDate] DATETIME2 NOT NULL,
+    [OrderStatus] NVARCHAR(MAX) NULL,
+    [OrderTotal] FLOAT NOT NULL,
+    [PaymentDate] DATETIME2 NOT NULL,
+    [PaymentDueDate] DATE NOT NULL,
+    [PaymentIntentId] NVARCHAR(MAX) NULL,
+    [PaymentStatus] NVARCHAR(MAX) NULL,
+    [PhoneNumber] NVARCHAR(MAX) NOT NULL,
+    [PostalCode] NVARCHAR(MAX) NOT NULL,
+    [ShippingDate] DATETIME2 NOT NULL,
+    [State] NVARCHAR(MAX) NOT NULL,
+    [StreetAddress] NVARCHAR(MAX) NOT NULL,
+    [TrackingNumber] NVARCHAR(MAX) NULL,
+    CONSTRAINT [FK_OrderHeaders_ApplicationUserId] FOREIGN KEY ([ApplicationUserId]) REFERENCES [AspNetUsers]([Id]) ON DELETE CASCADE
+);
+--##
+CREATE INDEX IX_OrderHeaders_ApplicationUserId ON [OrderHeaders] ([ApplicationUserId]);
+--##
+CREATE TABLE [OrderDetails] (
+    [Id] INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    [OrderHeaderId] INT NOT NULL,
+    [ProductId] INT NOT NULL,
+    [Count] INT NOT NULL,
+    [Price] FLOAT NOT NULL,
+    CONSTRAINT [FK_OrderDetails_OrderHeaderId] FOREIGN KEY ([OrderHeaderId]) REFERENCES [OrderHeaders]([Id]) ON DELETE CASCADE,
+    CONSTRAINT [FK_OrderDetails_ProductId] FOREIGN KEY ([ProductId]) REFERENCES [Products]([Id]) ON DELETE CASCADE
+);
+--##
+CREATE INDEX IX_OrderDetails_OrderHeaderId ON [OrderDetails] ([OrderHeaderId]);
+--##
+CREATE INDEX IX_OrderDetails_ProductId ON [OrderDetails] ([ProductId]);
+--##
+--11. Order Confrimation
+----7. Summary POST Action
