@@ -1,6 +1,7 @@
 ﻿using Bulky.DataAccess.Repository.IRepository;
 using Bulky.Models;
 using Bulky.Models.ViewModels;
+using Bulky.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -12,6 +13,7 @@ namespace BulkyWeb.Areas.Customer.Controllers
     public class CartController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
+        [BindProperty]
         public ShoppingCartVM CartVM { get; set; }
         
         public CartController(IUnitOfWork unitOfWork)
@@ -61,6 +63,64 @@ namespace BulkyWeb.Areas.Customer.Controllers
                 CartVM.OrderHeader.OrderTotal += (cart.Price * cart.Count);
             }
             return View(CartVM);
+        }
+
+        [HttpPost]
+        [ActionName("Summary")]
+        public IActionResult SummaryPost()
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity!;
+            var userId = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            ApplicationUser appUser = _unitOfWork.UserRepo.Get(u => u.Id == userId);
+
+            CartVM.ShoppingCartList = _unitOfWork.CartRepo.GetAll(u => u.ApplicationUserId == userId, includeProperties: "Product");
+            
+            CartVM.OrderHeader.OrderDate = System.DateTime.Now;
+            CartVM.OrderHeader.ApplicationUserId = userId;             
+
+            foreach (var cart in CartVM.ShoppingCartList)
+            {
+                cart.Price = GetPriceBasedOnQuantity(cart);
+                CartVM.OrderHeader.OrderTotal += (cart.Price * cart.Count);
+            }
+
+            if (appUser.CompanyId.GetValueOrDefault() == 0)
+            {
+                // it is a regular customer 
+                CartVM.OrderHeader.PaymentStatus = SD.PaymentStatusPending;
+                CartVM.OrderHeader.OrderStatus = SD.StatusPending;
+            }
+            else
+            {
+                // it is a company user
+                CartVM.OrderHeader.PaymentStatus = SD.PaymentStatusDelayedPayment;
+                CartVM.OrderHeader.OrderStatus = SD.StatusApproved;
+            }
+            _unitOfWork.OrdHeaderRepo.Add(CartVM.OrderHeader);
+            _unitOfWork.Save();
+            foreach (var cart in CartVM.ShoppingCartList)
+            {
+                OrderDetail detail = new()
+                {
+                    ProductId = cart.ProductId,
+                    OrderHeaderId = CartVM.OrderHeader.Id,
+                    Price = cart.Price,
+                    Count = cart.Count,
+                };
+                _unitOfWork.OrdDetailRepo.Add(detail);
+                _unitOfWork.Save();
+            }
+            if (appUser.CompanyId.GetValueOrDefault() == 0)
+            {
+                // it is a regular customer account and we need to capture payment
+                // stripe logic
+            }
+            return RedirectToAction(nameof(OrderConfirmation), new {id=CartVM.OrderHeader.Id});
+        }
+
+        public IActionResult OrderConfirmation(int id) 
+        { 
+            return View(id);
         }
 
         public IActionResult Plus(int cartId)
