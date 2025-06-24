@@ -44,6 +44,7 @@ namespace Bulky.DataAccess.Repository
                     query = query.Include(includeProp);
                 }
             }
+            Console.WriteLine("\n\n query: \n{0}\n\n", query.ToQueryString());
             return query.FirstOrDefault();
         }
 
@@ -63,6 +64,7 @@ namespace Bulky.DataAccess.Repository
                     query = query.Include(includeProp);
                 }
             }
+            Console.WriteLine("\n\n query: \n{0}\n\n", query.ToQueryString());
             return query.ToList();
         }
 

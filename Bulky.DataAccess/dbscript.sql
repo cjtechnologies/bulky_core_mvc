@@ -226,5 +226,7 @@ CREATE INDEX IX_OrderDetails_OrderHeaderId ON [OrderDetails] ([OrderHeaderId]);
 --##
 CREATE INDEX IX_OrderDetails_ProductId ON [OrderDetails] ([ProductId]);
 --##
---11. Order Confrimation
-----7. Summary POST Action
+ALTER TABLE OrderHeaders ADD SessionId NVARCHAR(MAX);
+--##
+--13. Advance Concepts
+----1. Authorization

@@ -115,7 +115,9 @@ namespace BulkyWeb.Areas.Customer.Controllers
                 // it is a regular customer account and we need to capture payment
                 // stripe logic
             }
-            return RedirectToAction(nameof(OrderConfirmation), new {id=CartVM.OrderHeader.Id});
+            int OrderHeaderId=CartVM.OrderHeader.Id;
+            //CartVM = new() { ShoppingCartList = [], OrderHeader = new() };
+            return RedirectToAction(nameof(OrderConfirmation), new {id= OrderHeaderId });
         }
 
         public IActionResult OrderConfirmation(int id) 
