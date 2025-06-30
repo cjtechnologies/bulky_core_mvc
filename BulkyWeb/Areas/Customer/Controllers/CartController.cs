@@ -135,10 +135,12 @@ namespace BulkyWeb.Areas.Customer.Controllers
         }
         public IActionResult Minus(int cartId)
         {
-            var cartFromDb = _unitOfWork.CartRepo.Get(u => u.Id == cartId);
+            var cartFromDb = _unitOfWork.CartRepo.Get(u => u.Id == cartId, tracked: true);
             if (cartFromDb.Count <= 1)
             {
                 // remove
+                int cartItemCount = _unitOfWork.CartRepo.GetAll(u => u.ApplicationUserId == cartFromDb.ApplicationUserId).Count() - 1;
+                HttpContext.Session.SetInt32(SD.SessionCart, cartItemCount);
                 _unitOfWork.CartRepo.Remove(cartFromDb);
             }
             else
@@ -151,7 +153,10 @@ namespace BulkyWeb.Areas.Customer.Controllers
         }
         public IActionResult Remove(int cartId)
         {
-            var cartFromDb = _unitOfWork.CartRepo.Get(u => u.Id == cartId);
+            var cartFromDb = _unitOfWork.CartRepo.Get(u => u.Id == cartId, tracked: true);
+            int cartItemCount = _unitOfWork.CartRepo.GetAll(u => u.ApplicationUserId == cartFromDb.ApplicationUserId).Count() - 1;
+            HttpContext.Session.SetInt32(SD.SessionCart, cartItemCount);
+            
             _unitOfWork.CartRepo.Remove(cartFromDb);
             _unitOfWork.Save();
             return RedirectToAction(nameof(Index));

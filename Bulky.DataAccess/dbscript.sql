@@ -229,4 +229,4 @@ CREATE INDEX IX_OrderDetails_ProductId ON [OrderDetails] ([ProductId]);
 ALTER TABLE OrderHeaders ADD SessionId NVARCHAR(MAX);
 --##
 --13. Advance Concepts
-----1. Authorization
+----3. Remove from Session and Bug
