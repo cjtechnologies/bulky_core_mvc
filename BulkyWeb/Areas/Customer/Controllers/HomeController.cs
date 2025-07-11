@@ -23,14 +23,15 @@ namespace BulkyWeb.Areas.Customer.Controllers
 
         public IActionResult Index()
         {
-            var claimsIdentity = (ClaimsIdentity)User.Identity;
-            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            // this commented code is moved to ShoppingCartViewComponent file
+            //var claimsIdentity = (ClaimsIdentity)User.Identity;
+            //var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
 
-            if (claim != null)
-            {
-                int cartItemCount = _unitOfWork.CartRepo.GetAll(u => u.ApplicationUserId == claim.Value).Count();
-                HttpContext.Session.SetInt32(SD.SessionCart,cartItemCount);
-            }
+            //if (claim != null)
+            //{
+            //    int cartItemCount = _unitOfWork.CartRepo.GetAll(u => u.ApplicationUserId == claim.Value).Count();
+            //    HttpContext.Session.SetInt32(SD.SessionCart, cartItemCount);
+            //}
             IEnumerable<Product> list = _unitOfWork.PdtRepo.GetAll(includeProperties: "Category");
             return View(list);
         }
@@ -75,9 +76,7 @@ namespace BulkyWeb.Areas.Customer.Controllers
             }
             int cartItemCount = _unitOfWork.CartRepo.GetAll(u => u.ApplicationUserId == userId!).Count();
             HttpContext.Session.SetInt32(SD.SessionCart, cartItemCount);
-            TempData["success"] = "Cart updated successfully";
-            
-
+            TempData["success"] = "Cart updated successfully";            
             return RedirectToAction(nameof(Index));
         }
 
