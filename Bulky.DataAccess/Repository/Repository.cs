@@ -27,7 +27,7 @@ namespace Bulky.DataAccess.Repository
             dbSet.Add(entity);
         }
 
-        //public T? Get(Expression<Func<T, bool>> filter, string? includeProperties = null, bool tracked = false)
+        // includeProperties is a comma separated string, that must match the navigation properties or dbcontext properties
         public T? Get(Expression<Func<T, bool>> filter, string? includeProperties = null, bool tracked = false)
         {
             IQueryable<T> query = dbSet;
@@ -48,7 +48,6 @@ namespace Bulky.DataAccess.Repository
             return query.FirstOrDefault();
         }
 
-        //public IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null, string? includeProperties = null)
         public IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null, string? includeProperties = null)
         {
             IQueryable<T> query = dbSet;

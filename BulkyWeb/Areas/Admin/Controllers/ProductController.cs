@@ -47,7 +47,7 @@ namespace BulkyWeb.Areas.Admin.Controllers
             }
             else {
                 //update
-                Product? obj = _unitOfWork.PdtRepo.Get(u => u.Id == id);
+                Product? obj = _unitOfWork.PdtRepo.Get(u => u.Id == id, includeProperties: "ProductImages");
                 if (obj == null)
                 {
                     return NotFound();
@@ -57,6 +57,73 @@ namespace BulkyWeb.Areas.Admin.Controllers
             }
         }
         [HttpPost]
+        public IActionResult Upsert(ProductVM obj, List<IFormFile>? files)
+        {
+            if (ModelState.IsValid)
+            {
+                // create product first
+                if (obj.Product.Id == 0)
+                {
+                    _unitOfWork.PdtRepo.Add(obj.Product);
+                    TempData["success"] = "Product created successfully";
+                }
+                else
+                {
+                    _unitOfWork.PdtRepo.Update(obj.Product);
+                    TempData["success"] = "Product updated successfully";
+                }
+                _unitOfWork.Save();
+
+                string wwwroot = _webHostEnvironment.WebRootPath;
+                if (files != null)
+                {
+                    foreach (IFormFile file in files)
+                    {
+                        //string filename = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                        string productFolder = @"images\products\product-"+obj.Product.Id;
+                        string finalFolder = Path.Combine(wwwroot, productFolder);
+                        Console.WriteLine("finalFolder: {0}", finalFolder);
+
+                        if (!Directory.Exists(finalFolder))
+                            Directory.CreateDirectory(finalFolder);
+
+                        using (var filestream = new FileStream(Path.Combine(finalFolder, file.FileName), FileMode.Create))
+                        {
+                            file.CopyTo(filestream);
+                        }
+
+                        ProductImage img = new()
+                        {
+                            ImageUrl = @"\" + productFolder + @"\"+file.FileName,
+                            ProductId = obj.Product.Id,
+                        }; 
+
+                        if (obj.Product.ProductImages == null)
+                            obj.Product.ProductImages = [];
+
+                        obj.Product.ProductImages.Add(img);
+                        //_unitOfWork.PdtImgRepo.Add(img); // this also work, but we use another way
+                        //_unitOfWork.Save();   // this will save every file
+                    }
+                    _unitOfWork.PdtRepo.Update(obj.Product); // using this all product images will be inserted in product image table
+                    _unitOfWork.Save();
+                }
+                
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                obj.CategoryList = _unitOfWork.CatRepo
+                .GetAll().Select(u => new SelectListItem
+                {
+                    Text = u.Name,
+                    Value = u.Id.ToString()
+                });
+                return View(obj);
+            }
+        }
+        /*
+        [HttpPost] // this method used for upload single image
         public IActionResult Upsert(ProductVM obj, IFormFile? file)
         {
             if (ModelState.IsValid) 
@@ -67,6 +134,7 @@ namespace BulkyWeb.Areas.Admin.Controllers
                     //string filename = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
                     string productPath = Path.Combine(wwwroot, @"images\product", file.FileName);
                     Console.WriteLine("productPath: {0}", productPath);
+                    
                     if (!string.IsNullOrEmpty(obj.Product.ImageUrl))
                     {
                         // delete the old image
@@ -82,6 +150,7 @@ namespace BulkyWeb.Areas.Admin.Controllers
                         file.CopyTo(filestream);
                     }
                     obj.Product.ImageUrl = @"\images\product\" + file.FileName;
+                    
                 }
                 if (obj.Product.Id == 0)
                 {
@@ -106,7 +175,32 @@ namespace BulkyWeb.Areas.Admin.Controllers
                 return View(obj);            
             }
         }
- 
+        */
+
+        public IActionResult DeleteImage(int imageId, string imageUrl)
+        {
+            Console.WriteLine("imageId: {0}, imageUrl: {1}", imageId, imageUrl);
+            var imageToBeDelete = _unitOfWork.PdtImgRepo.Get(u => u.Id == imageId);
+            int productId = imageToBeDelete!.ProductId;
+            if (imageToBeDelete != null )
+            {
+                if (!string.IsNullOrEmpty(imageToBeDelete.ImageUrl))
+                {
+                    var oldImagePath = Path.Combine(_webHostEnvironment.WebRootPath, imageToBeDelete!.ImageUrl!.TrimStart('\\'));
+                    Console.WriteLine("oldImagePath: {0}", oldImagePath);
+                    if (System.IO.File.Exists(oldImagePath))
+                    {
+                        System.IO.File.Delete(oldImagePath);
+                    }
+                }
+                _unitOfWork.PdtImgRepo.Remove(imageToBeDelete);
+                _unitOfWork.Save();
+                TempData["success"] = "Deleted successfully";
+            }
+
+            return RedirectToAction(nameof(Upsert), new { id = productId });
+        }
+
         #region Api Calls
         [HttpGet]
         public IActionResult GetAll()
@@ -126,6 +220,7 @@ namespace BulkyWeb.Areas.Admin.Controllers
             {
                 return Json(new {success=false,message= "Error while deleting" });
             }
+            /*
             if (obj.ImageUrl != null)
             {
                 var oldImagePath = Path.Combine(_webHostEnvironment.WebRootPath, obj!.ImageUrl!.TrimStart('\\'));
@@ -135,6 +230,22 @@ namespace BulkyWeb.Areas.Admin.Controllers
                     System.IO.File.Delete(oldImagePath);
                 }
             }
+            */
+            string wwwroot = _webHostEnvironment.WebRootPath;
+            string productFolder = @"images\products\product-" + id;
+            string finalFolder = Path.Combine(wwwroot, productFolder);
+            Console.WriteLine("finalFolder: {0}", finalFolder);
+
+            if (Directory.Exists(finalFolder))
+            {
+                string[] filePaths = Directory.GetFiles(finalFolder);
+                foreach (string filePath in filePaths)
+                {
+                    System.IO.File.Delete(filePath);
+                }
+                Directory.Delete(finalFolder);
+            }
+            
             _unitOfWork.PdtRepo.Remove(obj);
             _unitOfWork.Save();
             return Json(new { success = true, message = "Your record has been deleted." });

@@ -228,5 +228,12 @@ CREATE INDEX IX_OrderDetails_ProductId ON [OrderDetails] ([ProductId]);
 --##
 ALTER TABLE OrderHeaders ADD SessionId NVARCHAR(MAX);
 --##
---15. User Management
-----4. Lock Unlock Action Method
+CREATE TABLE [ProductImages] (
+    [Id] INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    [ImageUrl] NVARCHAR(MAX) NOT NULL,
+    [ProductId] INT NOT NULL,
+    CONSTRAINT [FK_ProductImages_ProductId] FOREIGN KEY ([ProductId]) REFERENCES [Products]([Id]) ON DELETE CASCADE
+);
+--##
+--16. Multiple Product Image
+----11. Bootstrap Carousel

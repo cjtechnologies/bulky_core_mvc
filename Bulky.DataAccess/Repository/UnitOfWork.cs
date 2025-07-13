@@ -13,6 +13,7 @@ namespace Bulky.DataAccess.Repository
         private ApplicationDbContext _db;
         public ICategoryRepository CatRepo { get; private set; }
         public IProductRepository PdtRepo { get; private set; }
+        public IProductImageRepository PdtImgRepo { get; private set; }
         public ICompanyRepository CompRepo { get; private set; }
         public IShoppingCartRepository CartRepo { get; private set; }
         public IApplicationUserRepository UserRepo { get; private set; }
@@ -23,6 +24,7 @@ namespace Bulky.DataAccess.Repository
             _db = db;
             CatRepo = new CategoryRepository(_db);
             PdtRepo = new ProductRepository(_db);
+            PdtImgRepo = new ProductImageRepository(_db);
             CompRepo = new CompanyRepository(_db);
             CartRepo = new ShoppingCartRepository(_db);
             UserRepo = new ApplicationUserRepository(_db);

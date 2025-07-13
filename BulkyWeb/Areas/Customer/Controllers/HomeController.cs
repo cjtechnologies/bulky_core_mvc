@@ -32,13 +32,13 @@ namespace BulkyWeb.Areas.Customer.Controllers
             //    int cartItemCount = _unitOfWork.CartRepo.GetAll(u => u.ApplicationUserId == claim.Value).Count();
             //    HttpContext.Session.SetInt32(SD.SessionCart, cartItemCount);
             //}
-            IEnumerable<Product> list = _unitOfWork.PdtRepo.GetAll(includeProperties: "Category");
+            IEnumerable<Product> list = _unitOfWork.PdtRepo.GetAll(includeProperties: "Category,ProductImages");
             return View(list);
         }
 
         public IActionResult Details(int pdtId)
         {
-            Product? pdt = _unitOfWork.PdtRepo.Get(u => u.Id == pdtId, includeProperties: "Category");
+            Product? pdt = _unitOfWork.PdtRepo.Get(u => u.Id == pdtId, includeProperties: "Category,ProductImages");
             if (pdt == null)
             {
                 return NotFound();
